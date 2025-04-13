@@ -1,1 +1,1 @@
-export { default as Draw } from "./Draw";
+export { default as AnimatedSVGText } from "./AnimatedSVGText";

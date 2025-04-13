@@ -1,2 +1,2 @@
-export { default as Draw } from "./Draw";
-export type { DrawProps } from "./Draw";
+export { default as AnimatedSVGText } from "./AnimatedSVGText";
+export type { AnimatedSVGTextProps } from "./AnimatedSVGText";
