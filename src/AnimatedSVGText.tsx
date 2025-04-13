@@ -134,93 +134,83 @@ const AnimatedSVGText: React.FC<AnimatedSVGTextProps> = ({
   const variants = createVariants(letterDelay, letterAnimationDuration);
 
   return (
-    <div
+    <motion.svg
       style={{
-        border: "1px solid #ccc",
-        padding: "1rem",
-        borderRadius: "4px",
-        textAlign: "center",
-        backgroundColor: "#FFFBE9"
+        width: "100%",
+        height: "auto",
+        margin: "0 auto",
+        display: "block"
       }}
+      width={pathsResult.totalWidth}
+      height={baseline + 20}
+      viewBox={`0 0 ${pathsResult.totalWidth} ${baseline + 20}`}
+      initial="hidden"
+      animate="visible"
     >
-      <motion.svg
-        style={{
-          width: "100%",
-          height: "auto",
-          margin: "0 auto",
-          display: "block"
-        }}
-        width={pathsResult.totalWidth}
-        height={baseline + 20}
-        viewBox={`0 0 ${pathsResult.totalWidth} ${baseline + 20}`}
-        initial="hidden"
-        animate="visible"
-      >
-        {pathsResult.letterPaths.map((letter, index) => {
-          if (fillAnimationType === "draw") {
-            const bb = letter.boundingBox;
-            const rectInitial =
-              fillDirection === "top"
-                ? { y: bb.y1, height: 0 }
-                : { y: bb.y2, height: 0 };
-            const rectAnimate =
-              fillDirection === "top"
-                ? { y: bb.y1, height: bb.y2 - bb.y1 }
-                : { y: bb.y1, height: bb.y2 - bb.y1 };
-            return (
-              <g key={index}>
-                <motion.path
-                  d={letter.pathData}
-                  stroke={getColor(lineColor, index, "#E3CAA5")}
-                  fill="none"
-                  strokeWidth={strokeWidth}
-                  strokeLinecap="round"
-                  strokeLinejoin="miter"
-                  variants={variants}
-                  custom={index + 1}
-                />
-                <defs>
-                  <mask id={`mask-${index}`}>
-                    <motion.rect
-                      x={bb.x1}
-                      width={bb.x2 - bb.x1}
-                      initial={rectInitial}
-                      animate={rectAnimate}
-                      fill="white"
-                      transition={{
-                        delay:
-                          (index + 1) * letterDelay + letterAnimationDuration,
-                        duration: fillDrawDuration
-                      }}
-                    />
-                  </mask>
-                </defs>
-                <motion.path
-                  d={letter.pathData}
-                  stroke="none"
-                  fill={getColor(fillColor, index, "none")}
-                  strokeWidth={strokeWidth}
-                  mask={`url(#mask-${index})`}
-                />
-              </g>
-            );
-          }
+      {pathsResult.letterPaths.map((letter, index) => {
+        if (fillAnimationType === "draw") {
+          const bb = letter.boundingBox;
+          const rectInitial =
+            fillDirection === "top"
+              ? { y: bb.y1, height: 0 }
+              : { y: bb.y2, height: 0 };
+          const rectAnimate =
+            fillDirection === "top"
+              ? { y: bb.y1, height: bb.y2 - bb.y1 }
+              : { y: bb.y1, height: bb.y2 - bb.y1 };
           return (
-            <motion.path
-              key={index}
-              d={letter.pathData}
-              stroke={getColor(lineColor, index, "#E3CAA5")}
-              fill={getColor(fillColor, index, "none")}
-              strokeWidth={strokeWidth}
-              strokeLinecap="round"
-              strokeLinejoin="miter"
-              variants={variants}
-              custom={index + 1}
-            />
+            <g key={index}>
+              <motion.path
+                d={letter.pathData}
+                stroke={getColor(lineColor, index, "#E3CAA5")}
+                fill="none"
+                strokeWidth={strokeWidth}
+                strokeLinecap="round"
+                strokeLinejoin="miter"
+                variants={variants}
+                custom={index + 1}
+              />
+              <defs>
+                <mask id={`mask-${index}`}>
+                  <motion.rect
+                    x={bb.x1}
+                    width={bb.x2 - bb.x1}
+                    initial={rectInitial}
+                    animate={rectAnimate}
+                    fill="white"
+                    transition={{
+                      delay:
+                        (index + 1) * letterDelay + letterAnimationDuration,
+                      duration: fillDrawDuration
+                    }}
+                  />
+                </mask>
+              </defs>
+              <motion.path
+                d={letter.pathData}
+                stroke="none"
+                fill={getColor(fillColor, index, "none")}
+                strokeWidth={strokeWidth}
+                mask={`url(#mask-${index})`}
+              />
+            </g>
           );
-        })}
-      </motion.svg>
-    </div>
+        }
+        return (
+          <motion.path
+            key={index}
+            d={letter.pathData}
+            stroke={getColor(lineColor, index, "#E3CAA5")}
+            fill={getColor(fillColor, index, "none")}
+            strokeWidth={strokeWidth}
+            strokeLinecap="round"
+            strokeLinejoin="miter"
+            variants={variants}
+            custom={index + 1}
+          />
+        );
+      })}
+    </motion.svg>
   );
 };
 
