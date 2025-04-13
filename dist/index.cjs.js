@@ -25429,15 +25429,7 @@ var AnimatedSVGText = function AnimatedSVGText(_ref) {
     });
   }, [fontUrl, text, letterSpacing, fontSize, baseline]);
   var variants = createVariants(letterDelay, letterAnimationDuration);
-  return /*#__PURE__*/React.createElement("div", {
-    style: {
-      border: "1px solid #ccc",
-      padding: "1rem",
-      borderRadius: "4px",
-      textAlign: "center",
-      backgroundColor: "#FFFBE9"
-    }
-  }, /*#__PURE__*/React.createElement(motion.svg, {
+  return /*#__PURE__*/React.createElement(motion.svg, {
     style: {
       width: "100%",
       height: "auto",
@@ -25508,7 +25500,7 @@ var AnimatedSVGText = function AnimatedSVGText(_ref) {
       variants: variants,
       custom: index + 1
     });
-  })));
+  }));
 };
 
 exports.AnimatedSVGText = AnimatedSVGText;
