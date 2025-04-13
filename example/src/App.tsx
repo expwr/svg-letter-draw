@@ -1,5 +1,5 @@
-import { Draw } from "../../src";
-// import { Draw } from "svg-letter-draw";
+import { AnimatedSVGText } from "../../src";
+// import { AnimatedSVGText } from "svg-letter-draw";
 import BarlowSemiCondensed from "./fonts/BarlowSemiCondensed-Black.ttf";
 import BarlowSemiCondensedRegular from "./fonts/BarlowSemiCondensed-Regular.ttf";
 import SpecialGothic from "./fonts/SpecialGothicExpandedOne-Regular.ttf";
@@ -11,7 +11,7 @@ function App() {
     <div style={{ margin: "2rem" }}>
       <h1>Demo for svg-letter-draw Component</h1>
       <div style={{ width: "1200px" }}>
-        <Draw
+        <AnimatedSVGText
           fontUrl={SpecialGothic}
           text="svg-letter-draw"
           letterSpacing={2}
