@@ -1,4 +1,9 @@
-# SVG Letter Draw
+<div align="center">
+  <h1>svg-letter-draw</h1>
+  <a href="https://www.npmjs.com/package/svg-letter-draw"><img alt="Latest version on npm" src="https://img.shields.io/npm/v/svg-letter-draw.svg?style=flat" /></a>
+  <a href="https://github.com/expwr/svg-letter-draw/blob/main/LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/License-MIT-yellow.svg" /></a>
+  <br /><br />
+</div>
 
 A React component to animate text with SVG letter drawing using Framer Motion and opentype.js. Easily customize fonts, colors, stroke widths, animation timings, and fill effects.
 
