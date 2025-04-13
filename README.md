@@ -2,8 +2,8 @@
 
 A React component to animate text with SVG letter drawing using Framer Motion and opentype.js. Easily customize fonts, colors, stroke widths, animation timings, and fill effects.
 
-![Demo GIF 1](./example/public/examlple1.gif)
-![Demo GIF 2](./example/public/examlple2.gif)
+![Demo GIF 1](./example/public/example1.gif)
+![Demo GIF 2](./example/public/example2.gif)
 
 ## Features
 
