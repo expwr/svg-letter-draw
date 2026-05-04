@@ -1,10 +1,6 @@
 // import { AnimatedSVGText } from "../../src";
 import { AnimatedSVGText } from "svg-letter-draw";
-import BarlowSemiCondensed from "./fonts/BarlowSemiCondensed-Black.ttf";
-import BarlowSemiCondensedRegular from "./fonts/BarlowSemiCondensed-Regular.ttf";
 import SpecialGothic from "./fonts/SpecialGothicExpandedOne-Regular.ttf";
-import DancingScript from "./fonts/DancingScript-VariableFont_wght.ttf";
-import RobotoSlab from "./fonts/RobotoSlab-VariableFont_wght.ttf";
 
 function App() {
   return (

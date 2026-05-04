@@ -1,22 +1,17 @@
 {
   "compilerOptions": {
-    "target": "ES5",
+    "target": "ES2020",
     "module": "ESNext",
-    "jsx": "react",
+    "jsx": "react-jsx",
     "declaration": true,
     "declarationDir": "dist",
     "emitDeclarationOnly": false,
     "outDir": "dist",
     "strict": true,
     "esModuleInterop": true,
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "es2015",
-      "es2015.iterable"
-    ],
-    "moduleResolution": "node"
+    "skipLibCheck": true,
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "moduleResolution": "Bundler"
   },
   "include": ["src/**/*"]
 }
-  

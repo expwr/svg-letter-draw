@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { motion, Variants } from "framer-motion";
-import opentype, { Font, Path } from "opentype.js";
+import { useEffect, useId, useState } from "react";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
+import { load as loadOpentypeFont, Font, Path } from "opentype.js";
 
 export interface AnimatedSVGTextProps {
   fontUrl: string;
@@ -35,42 +35,58 @@ interface LetterPathsResult {
   totalWidth: number;
 }
 
-async function generateLetterPaths(
-  fontFile: string,
+// Cache loaded fonts per URL so changes to text/fontSize/etc. don't re-fetch.
+const fontCache = new Map<string, Promise<Font>>();
+
+function loadFont(fontUrl: string): Promise<Font> {
+  let pending = fontCache.get(fontUrl);
+  if (!pending) {
+    pending = loadOpentypeFont(fontUrl).catch((err) => {
+      // Don't poison the cache on failure: drop the entry so a retry can happen.
+      fontCache.delete(fontUrl);
+      throw err;
+    });
+    fontCache.set(fontUrl, pending);
+  }
+  return pending;
+}
+
+function buildLetterPaths(
+  font: Font,
   text: string,
   startX: number,
   baseline: number,
   fontSize: number,
   letterSpacing: number
-): Promise<LetterPathsResult> {
-  try {
-    const font: Font = await opentype.load(fontFile);
-    const letterPaths: LetterPath[] = [];
-    let xOffset = startX;
-    for (const char of text) {
-      const path: Path = font.getPath(char, xOffset, baseline, fontSize);
-      const pathData = path.toPathData(2);
-      const bb = path.getBoundingBox();
-      letterPaths.push({
-        char,
-        pathData,
-        boundingBox: { x1: bb.x1, y1: bb.y1, x2: bb.x2, y2: bb.y2 }
-      });
-      xOffset += font.getAdvanceWidth(char, fontSize) + letterSpacing;
-    }
-    return { letterPaths, totalWidth: xOffset };
-  } catch (error) {
-    console.error("Error loading font or generating letter paths:", error);
-    return { letterPaths: [], totalWidth: 1100 };
+): LetterPathsResult {
+  const letterPaths: LetterPath[] = [];
+  let xOffset = startX;
+  for (const char of text) {
+    const path: Path = font.getPath(char, xOffset, baseline, fontSize);
+    const pathData = path.toPathData(2);
+    const bb = path.getBoundingBox();
+    letterPaths.push({
+      char,
+      pathData,
+      boundingBox: { x1: bb.x1, y1: bb.y1, x2: bb.x2, y2: bb.y2 }
+    });
+    xOffset += font.getAdvanceWidth(char, fontSize) + letterSpacing;
   }
+  return { letterPaths, totalWidth: xOffset };
 }
 
 const createVariants = (
   letterDelay: number,
-  letterAnimationDuration: number
+  letterAnimationDuration: number,
+  reducedMotion: boolean
 ): Variants => ({
-  hidden: { pathLength: 0, opacity: 0, fillOpacity: 0 },
+  hidden: reducedMotion
+    ? { pathLength: 1, opacity: 1, fillOpacity: 1 }
+    : { pathLength: 0, opacity: 0, fillOpacity: 0 },
   visible: (i: number = 1) => {
+    if (reducedMotion) {
+      return { pathLength: 1, opacity: 1, fillOpacity: 1 };
+    }
     const delay = i * letterDelay;
     return {
       pathLength: 1,
@@ -100,7 +116,7 @@ const getColor = (
   return color[index % color.length] || defaultColor;
 };
 
-const AnimatedSVGText: React.FC<AnimatedSVGTextProps> = ({
+const AnimatedSVGText = ({
   fontUrl,
   text = "",
   letterSpacing = 10,
@@ -113,25 +129,45 @@ const AnimatedSVGText: React.FC<AnimatedSVGTextProps> = ({
   fillAnimationType = "fade",
   fillDirection = "top",
   fillDrawDuration = 0.5
-}) => {
+}: AnimatedSVGTextProps) => {
   const baseline = fontSize * 1.2;
+  const maskIdBase = useId();
+  const prefersReducedMotion = useReducedMotion() ?? false;
   const [pathsResult, setPathsResult] = useState<LetterPathsResult>({
     letterPaths: [],
     totalWidth: 1100
   });
 
   useEffect(() => {
-    generateLetterPaths(
-      fontUrl,
-      text,
-      0,
-      baseline,
-      fontSize,
-      letterSpacing
-    ).then((result) => setPathsResult(result));
+    let cancelled = false;
+    loadFont(fontUrl)
+      .then((font) => {
+        if (cancelled) return;
+        const result = buildLetterPaths(
+          font,
+          text,
+          0,
+          baseline,
+          fontSize,
+          letterSpacing
+        );
+        setPathsResult(result);
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        console.error("Error loading font or generating letter paths:", error);
+        setPathsResult({ letterPaths: [], totalWidth: 1100 });
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [fontUrl, text, letterSpacing, fontSize, baseline]);
 
-  const variants = createVariants(letterDelay, letterAnimationDuration);
+  const variants = createVariants(
+    letterDelay,
+    letterAnimationDuration,
+    prefersReducedMotion
+  );
 
   return (
     <motion.svg
@@ -147,19 +183,46 @@ const AnimatedSVGText: React.FC<AnimatedSVGTextProps> = ({
       initial="hidden"
       animate="visible"
     >
+      {fillAnimationType === "draw" && (
+        <defs>
+          {pathsResult.letterPaths.map((letter, index) => {
+            const bb = letter.boundingBox;
+            const rectInitial =
+              fillDirection === "top"
+                ? { y: bb.y1, height: 0 }
+                : { y: bb.y2, height: 0 };
+            const rectAnimate = { y: bb.y1, height: bb.y2 - bb.y1 };
+            return (
+              <mask
+                key={`mask-${maskIdBase}-${index}`}
+                id={`mask-${maskIdBase}-${index}`}
+              >
+                <motion.rect
+                  x={bb.x1}
+                  width={bb.x2 - bb.x1}
+                  initial={prefersReducedMotion ? rectAnimate : rectInitial}
+                  animate={rectAnimate}
+                  fill="white"
+                  transition={
+                    prefersReducedMotion
+                      ? { duration: 0 }
+                      : {
+                          delay:
+                            (index + 1) * letterDelay +
+                            letterAnimationDuration,
+                          duration: fillDrawDuration
+                        }
+                  }
+                />
+              </mask>
+            );
+          })}
+        </defs>
+      )}
       {pathsResult.letterPaths.map((letter, index) => {
         if (fillAnimationType === "draw") {
-          const bb = letter.boundingBox;
-          const rectInitial =
-            fillDirection === "top"
-              ? { y: bb.y1, height: 0 }
-              : { y: bb.y2, height: 0 };
-          const rectAnimate =
-            fillDirection === "top"
-              ? { y: bb.y1, height: bb.y2 - bb.y1 }
-              : { y: bb.y1, height: bb.y2 - bb.y1 };
           return (
-            <g key={index}>
+            <g key={`${letter.char}-${index}`}>
               <motion.path
                 d={letter.pathData}
                 stroke={getColor(lineColor, index, "#E3CAA5")}
@@ -170,35 +233,19 @@ const AnimatedSVGText: React.FC<AnimatedSVGTextProps> = ({
                 variants={variants}
                 custom={index + 1}
               />
-              <defs>
-                <mask id={`mask-${index}`}>
-                  <motion.rect
-                    x={bb.x1}
-                    width={bb.x2 - bb.x1}
-                    initial={rectInitial}
-                    animate={rectAnimate}
-                    fill="white"
-                    transition={{
-                      delay:
-                        (index + 1) * letterDelay + letterAnimationDuration,
-                      duration: fillDrawDuration
-                    }}
-                  />
-                </mask>
-              </defs>
               <motion.path
                 d={letter.pathData}
                 stroke="none"
                 fill={getColor(fillColor, index, "none")}
                 strokeWidth={strokeWidth}
-                mask={`url(#mask-${index})`}
+                mask={`url(#mask-${maskIdBase}-${index})`}
               />
             </g>
           );
         }
         return (
           <motion.path
-            key={index}
+            key={`${letter.char}-${index}`}
             d={letter.pathData}
             stroke={getColor(lineColor, index, "#E3CAA5")}
             fill={getColor(fillColor, index, "none")}
