@@ -1,6 +1,6 @@
 import { useEffect, useId, useState } from "react";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
-import { load as loadOpentypeFont, Font, Path } from "opentype.js";
+import { parse, Font, Path } from "opentype.js";
 
 export interface AnimatedSVGTextProps {
   fontUrl: string;
@@ -38,10 +38,19 @@ interface LetterPathsResult {
 // Cache loaded fonts per URL so changes to text/fontSize/etc. don't re-fetch.
 const fontCache = new Map<string, Promise<Font>>();
 
+async function fetchAndParseFont(fontUrl: string): Promise<Font> {
+  const response = await fetch(fontUrl);
+  if (!response.ok) {
+    throw new Error(`Failed to load font (${response.status}): ${fontUrl}`);
+  }
+  const buffer = await response.arrayBuffer();
+  return parse(buffer);
+}
+
 function loadFont(fontUrl: string): Promise<Font> {
   let pending = fontCache.get(fontUrl);
   if (!pending) {
-    pending = loadOpentypeFont(fontUrl).catch((err) => {
+    pending = fetchAndParseFont(fontUrl).catch((err) => {
       // Don't poison the cache on failure: drop the entry so a retry can happen.
       fontCache.delete(fontUrl);
       throw err;
