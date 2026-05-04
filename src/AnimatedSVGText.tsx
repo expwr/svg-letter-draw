@@ -232,6 +232,14 @@ const AnimatedSVGText = ({
         if (fillAnimationType === "draw") {
           return (
             <g key={`${letter.char}-${index}`}>
+              {/* Fill beneath stroke so the fill layer does not hide half the outline. */}
+              <motion.path
+                d={letter.pathData}
+                stroke="none"
+                fill={getColor(fillColor, index, "none")}
+                strokeWidth={strokeWidth}
+                mask={`url(#mask-${maskIdBase}-${index})`}
+              />
               <motion.path
                 d={letter.pathData}
                 stroke={getColor(lineColor, index, "#E3CAA5")}
@@ -241,13 +249,6 @@ const AnimatedSVGText = ({
                 strokeLinejoin="miter"
                 variants={variants}
                 custom={index + 1}
-              />
-              <motion.path
-                d={letter.pathData}
-                stroke="none"
-                fill={getColor(fillColor, index, "none")}
-                strokeWidth={strokeWidth}
-                mask={`url(#mask-${maskIdBase}-${index})`}
               />
             </g>
           );

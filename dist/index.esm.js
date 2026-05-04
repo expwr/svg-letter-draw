@@ -458,6 +458,12 @@ var AnimatedSVGText = function AnimatedSVGText(_ref) {
         return /*#__PURE__*/jsxs("g", {
           children: [/*#__PURE__*/jsx(motion.path, {
             d: letter.pathData,
+            stroke: "none",
+            fill: getColor(fillColor, index, "none"),
+            strokeWidth: strokeWidth,
+            mask: "url(#mask-".concat(maskIdBase, "-").concat(index, ")")
+          }), /*#__PURE__*/jsx(motion.path, {
+            d: letter.pathData,
             stroke: getColor(lineColor, index, "#E3CAA5"),
             fill: "none",
             strokeWidth: strokeWidth,
@@ -465,12 +471,6 @@ var AnimatedSVGText = function AnimatedSVGText(_ref) {
             strokeLinejoin: "miter",
             variants: variants,
             custom: index + 1
-          }), /*#__PURE__*/jsx(motion.path, {
-            d: letter.pathData,
-            stroke: "none",
-            fill: getColor(fillColor, index, "none"),
-            strokeWidth: strokeWidth,
-            mask: "url(#mask-".concat(maskIdBase, "-").concat(index, ")")
           })]
         }, "".concat(letter["char"], "-").concat(index));
       }
