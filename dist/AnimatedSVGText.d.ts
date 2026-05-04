@@ -11,6 +11,8 @@ export interface AnimatedSVGTextProps {
     fillAnimationType?: "fade" | "draw";
     fillDirection?: "top" | "bottom";
     fillDrawDuration?: number;
+    /** Decimal places for SVG path coordinates from opentype.js. Higher values reduce seam notches on large font sizes; default 5. */
+    pathDecimalPlaces?: number;
 }
-declare const AnimatedSVGText: ({ fontUrl, text, letterSpacing, letterAnimationDuration, letterDelay, strokeWidth, fontSize, fillColor, lineColor, fillAnimationType, fillDirection, fillDrawDuration }: AnimatedSVGTextProps) => import("react/jsx-runtime").JSX.Element;
+declare const AnimatedSVGText: ({ fontUrl, text, letterSpacing, letterAnimationDuration, letterDelay, strokeWidth, fontSize, fillColor, lineColor, fillAnimationType, fillDirection, fillDrawDuration, pathDecimalPlaces }: AnimatedSVGTextProps) => import("react/jsx-runtime").JSX.Element;
 export default AnimatedSVGText;

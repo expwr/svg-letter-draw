@@ -275,7 +275,7 @@ function loadFont(fontUrl) {
   }
   return pending;
 }
-function buildLetterPaths(font, text, startX, baseline, fontSize, letterSpacing) {
+function buildLetterPaths(font, text, startX, baseline, fontSize, letterSpacing, pathDecimalPlaces) {
   var letterPaths = [];
   var xOffset = startX;
   var _iterator = _createForOfIteratorHelper(text),
@@ -284,7 +284,7 @@ function buildLetterPaths(font, text, startX, baseline, fontSize, letterSpacing)
     for (_iterator.s(); !(_step = _iterator.n()).done;) {
       var _char = _step.value;
       var path = font.getPath(_char, xOffset, baseline, fontSize);
-      var pathData = path.toPathData(2);
+      var pathData = path.toPathData(pathDecimalPlaces);
       var bb = path.getBoundingBox();
       letterPaths.push({
         "char": _char,
@@ -336,9 +336,9 @@ var createVariants = function createVariants(letterDelay, letterAnimationDuratio
         transition: {
           pathLength: {
             delay: delay,
-            type: "spring",
+            type: "tween",
             duration: letterAnimationDuration,
-            bounce: 0
+            ease: "easeOut"
           },
           opacity: {
             delay: delay,
@@ -382,7 +382,9 @@ var AnimatedSVGText = function AnimatedSVGText(_ref) {
     _ref$fillDirection = _ref.fillDirection,
     fillDirection = _ref$fillDirection === void 0 ? "top" : _ref$fillDirection,
     _ref$fillDrawDuration = _ref.fillDrawDuration,
-    fillDrawDuration = _ref$fillDrawDuration === void 0 ? 0.5 : _ref$fillDrawDuration;
+    fillDrawDuration = _ref$fillDrawDuration === void 0 ? 0.5 : _ref$fillDrawDuration,
+    _ref$pathDecimalPlace = _ref.pathDecimalPlaces,
+    pathDecimalPlaces = _ref$pathDecimalPlace === void 0 ? 5 : _ref$pathDecimalPlace;
   var baseline = fontSize * 1.2;
   var maskIdBase = react.useId();
   var prefersReducedMotion = (_useReducedMotion = framerMotion.useReducedMotion()) !== null && _useReducedMotion !== void 0 ? _useReducedMotion : false;
@@ -397,7 +399,7 @@ var AnimatedSVGText = function AnimatedSVGText(_ref) {
     var cancelled = false;
     loadFont(fontUrl).then(function (font) {
       if (cancelled) return;
-      var result = buildLetterPaths(font, text, 0, baseline, fontSize, letterSpacing);
+      var result = buildLetterPaths(font, text, 0, baseline, fontSize, letterSpacing, pathDecimalPlaces);
       setPathsResult(result);
     })["catch"](function (error) {
       if (cancelled) return;
@@ -410,7 +412,7 @@ var AnimatedSVGText = function AnimatedSVGText(_ref) {
     return function () {
       cancelled = true;
     };
-  }, [fontUrl, text, letterSpacing, fontSize, baseline]);
+  }, [fontUrl, text, letterSpacing, fontSize, baseline, pathDecimalPlaces]);
   var variants = createVariants(letterDelay, letterAnimationDuration, prefersReducedMotion);
   return /*#__PURE__*/jsxRuntime.jsxs(framerMotion.motion.svg, {
     style: {

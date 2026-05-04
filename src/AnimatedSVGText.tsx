@@ -15,6 +15,8 @@ export interface AnimatedSVGTextProps {
   fillAnimationType?: "fade" | "draw";
   fillDirection?: "top" | "bottom";
   fillDrawDuration?: number;
+  /** Decimal places for SVG path coordinates from opentype.js. Higher values reduce seam notches on large font sizes; default 5. */
+  pathDecimalPlaces?: number;
 }
 
 interface BoundingBox {
@@ -66,13 +68,14 @@ function buildLetterPaths(
   startX: number,
   baseline: number,
   fontSize: number,
-  letterSpacing: number
+  letterSpacing: number,
+  pathDecimalPlaces: number
 ): LetterPathsResult {
   const letterPaths: LetterPath[] = [];
   let xOffset = startX;
   for (const char of text) {
     const path: Path = font.getPath(char, xOffset, baseline, fontSize);
-    const pathData = path.toPathData(2);
+    const pathData = path.toPathData(pathDecimalPlaces);
     const bb = path.getBoundingBox();
     letterPaths.push({
       char,
@@ -104,9 +107,9 @@ const createVariants = (
       transition: {
         pathLength: {
           delay,
-          type: "spring",
+          type: "tween",
           duration: letterAnimationDuration,
-          bounce: 0
+          ease: "easeOut"
         },
         opacity: { delay, duration: 0.01 },
         fillOpacity: { delay: delay + letterAnimationDuration, duration: 0.5 }
@@ -137,7 +140,8 @@ const AnimatedSVGText = ({
   lineColor = "#E3CAA5",
   fillAnimationType = "fade",
   fillDirection = "top",
-  fillDrawDuration = 0.5
+  fillDrawDuration = 0.5,
+  pathDecimalPlaces = 5
 }: AnimatedSVGTextProps) => {
   const baseline = fontSize * 1.2;
   const maskIdBase = useId();
@@ -158,7 +162,8 @@ const AnimatedSVGText = ({
           0,
           baseline,
           fontSize,
-          letterSpacing
+          letterSpacing,
+          pathDecimalPlaces
         );
         setPathsResult(result);
       })
@@ -170,7 +175,7 @@ const AnimatedSVGText = ({
     return () => {
       cancelled = true;
     };
-  }, [fontUrl, text, letterSpacing, fontSize, baseline]);
+  }, [fontUrl, text, letterSpacing, fontSize, baseline, pathDecimalPlaces]);
 
   const variants = createVariants(
     letterDelay,
