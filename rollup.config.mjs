@@ -16,7 +16,14 @@ export default {
       format: "esm"
     }
   ],
-  external: ["react", "react-dom", "framer-motion", "opentype.js"],
+  external: [
+    "react",
+    "react/jsx-runtime",
+    "react/jsx-dev-runtime",
+    "react-dom",
+    "framer-motion",
+    "opentype.js"
+  ],
   onwarn(warning, warn) {
     // Framer Motion ships RSC "use client" directives that aren't relevant
     // when consumed as a peer dep. Suppress the noise.

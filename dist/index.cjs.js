@@ -3,6 +3,7 @@
 var react = require('react');
 var framerMotion = require('framer-motion');
 var opentype_js = require('opentype.js');
+var jsxRuntime = require('react/jsx-runtime');
 
 function _arrayLikeToArray(r, a) {
   (null == a || a > r.length) && (a = r.length);
@@ -249,7 +250,7 @@ var AnimatedSVGText = function AnimatedSVGText(_ref) {
     };
   }, [fontUrl, text, letterSpacing, fontSize, baseline]);
   var variants = createVariants(letterDelay, letterAnimationDuration, prefersReducedMotion);
-  return /*#__PURE__*/React.createElement(framerMotion.motion.svg, {
+  return /*#__PURE__*/jsxRuntime.jsxs(framerMotion.motion.svg, {
     style: {
       width: "100%",
       height: "auto",
@@ -260,69 +261,71 @@ var AnimatedSVGText = function AnimatedSVGText(_ref) {
     height: baseline + 20,
     viewBox: "0 0 ".concat(pathsResult.totalWidth, " ").concat(baseline + 20),
     initial: "hidden",
-    animate: "visible"
-  }, fillAnimationType === "draw" && /*#__PURE__*/React.createElement("defs", null, pathsResult.letterPaths.map(function (letter, index) {
-    var bb = letter.boundingBox;
-    var rectInitial = fillDirection === "top" ? {
-      y: bb.y1,
-      height: 0
-    } : {
-      y: bb.y2,
-      height: 0
-    };
-    var rectAnimate = {
-      y: bb.y1,
-      height: bb.y2 - bb.y1
-    };
-    return /*#__PURE__*/React.createElement("mask", {
-      key: "mask-".concat(maskIdBase, "-").concat(index),
-      id: "mask-".concat(maskIdBase, "-").concat(index)
-    }, /*#__PURE__*/React.createElement(framerMotion.motion.rect, {
-      x: bb.x1,
-      width: bb.x2 - bb.x1,
-      initial: prefersReducedMotion ? rectAnimate : rectInitial,
-      animate: rectAnimate,
-      fill: "white",
-      transition: prefersReducedMotion ? {
-        duration: 0
-      } : {
-        delay: (index + 1) * letterDelay + letterAnimationDuration,
-        duration: fillDrawDuration
+    animate: "visible",
+    children: [fillAnimationType === "draw" && /*#__PURE__*/jsxRuntime.jsx("defs", {
+      children: pathsResult.letterPaths.map(function (letter, index) {
+        var bb = letter.boundingBox;
+        var rectInitial = fillDirection === "top" ? {
+          y: bb.y1,
+          height: 0
+        } : {
+          y: bb.y2,
+          height: 0
+        };
+        var rectAnimate = {
+          y: bb.y1,
+          height: bb.y2 - bb.y1
+        };
+        return /*#__PURE__*/jsxRuntime.jsx("mask", {
+          id: "mask-".concat(maskIdBase, "-").concat(index),
+          children: /*#__PURE__*/jsxRuntime.jsx(framerMotion.motion.rect, {
+            x: bb.x1,
+            width: bb.x2 - bb.x1,
+            initial: prefersReducedMotion ? rectAnimate : rectInitial,
+            animate: rectAnimate,
+            fill: "white",
+            transition: prefersReducedMotion ? {
+              duration: 0
+            } : {
+              delay: (index + 1) * letterDelay + letterAnimationDuration,
+              duration: fillDrawDuration
+            }
+          })
+        }, "mask-".concat(maskIdBase, "-").concat(index));
+      })
+    }), pathsResult.letterPaths.map(function (letter, index) {
+      if (fillAnimationType === "draw") {
+        return /*#__PURE__*/jsxRuntime.jsxs("g", {
+          children: [/*#__PURE__*/jsxRuntime.jsx(framerMotion.motion.path, {
+            d: letter.pathData,
+            stroke: getColor(lineColor, index, "#E3CAA5"),
+            fill: "none",
+            strokeWidth: strokeWidth,
+            strokeLinecap: "round",
+            strokeLinejoin: "miter",
+            variants: variants,
+            custom: index + 1
+          }), /*#__PURE__*/jsxRuntime.jsx(framerMotion.motion.path, {
+            d: letter.pathData,
+            stroke: "none",
+            fill: getColor(fillColor, index, "none"),
+            strokeWidth: strokeWidth,
+            mask: "url(#mask-".concat(maskIdBase, "-").concat(index, ")")
+          })]
+        }, "".concat(letter["char"], "-").concat(index));
       }
-    }));
-  })), pathsResult.letterPaths.map(function (letter, index) {
-    if (fillAnimationType === "draw") {
-      return /*#__PURE__*/React.createElement("g", {
-        key: "".concat(letter["char"], "-").concat(index)
-      }, /*#__PURE__*/React.createElement(framerMotion.motion.path, {
+      return /*#__PURE__*/jsxRuntime.jsx(framerMotion.motion.path, {
         d: letter.pathData,
         stroke: getColor(lineColor, index, "#E3CAA5"),
-        fill: "none",
+        fill: getColor(fillColor, index, "none"),
         strokeWidth: strokeWidth,
         strokeLinecap: "round",
         strokeLinejoin: "miter",
         variants: variants,
         custom: index + 1
-      }), /*#__PURE__*/React.createElement(framerMotion.motion.path, {
-        d: letter.pathData,
-        stroke: "none",
-        fill: getColor(fillColor, index, "none"),
-        strokeWidth: strokeWidth,
-        mask: "url(#mask-".concat(maskIdBase, "-").concat(index, ")")
-      }));
-    }
-    return /*#__PURE__*/React.createElement(framerMotion.motion.path, {
-      key: "".concat(letter["char"], "-").concat(index),
-      d: letter.pathData,
-      stroke: getColor(lineColor, index, "#E3CAA5"),
-      fill: getColor(fillColor, index, "none"),
-      strokeWidth: strokeWidth,
-      strokeLinecap: "round",
-      strokeLinejoin: "miter",
-      variants: variants,
-      custom: index + 1
-    });
-  }));
+      }, "".concat(letter["char"], "-").concat(index));
+    })]
+  });
 };
 
 exports.AnimatedSVGText = AnimatedSVGText;
